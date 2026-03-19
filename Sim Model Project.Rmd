@@ -9,22 +9,126 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r, include=FALSE}
+require(tidyverse)
 ```
 
-## Including Plots
+# Introduction
 
-You can also embed plots, for example:
+Form three regression models; Model1 is SIMS~ARM, Model2 is SIMS~GRIP, and Model3 is SIMS~ARM+GRIP. For each model find a 95% prediction interval of SIMS given a value of 90 for GRIP and 90 for ARM. Compare Model1 with Model3 using anova. Write it up in a markdown document, push the project up to your github account and submit it back to canvas as link. 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+simData <- read.csv("sims.csv")
+newdata = data.frame(ARM=90, GRIP=90)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+# Methods
+
+Each model predicts SIMS (numerical) based on ARM or GRIP strength, both of these are numerical also.
+    
+WE use the numerical~numerical helper file
+    
+# Model 1 SIMS depends on ARM
+```{r}
+m1 = lm(SIMS~ARM,data=simData)
+```
+
+## Numerical Summary model 1
+```{r}
+summary.lm(m1)
+```
+    
+Model 1 is y -4.09 + 0.054*ARM    
+Adjusted R-squared is .467    
+Both coefficients are significantly different from 0
+    
+## graphical desciption of SIMS~ARM
+
+```{r}
+plot(SIMS~ARM,data=simData)
+abline(m1)
+```
+    
+The scatterplot shows a positive linear relation between SIMS and ARM
+    
+## Prediction for ARM=90
+```{r}
+predict(m1, newdata, interval='prediction')
+```
+    
+
+    
+# Model 2 SIMS depends on GRIP
+```{r}
+m2 = lm(SIMS~GRIP,data=simData)
+```
+
+## Numerical Summary model 2
+```{r}
+summary.lm(m2)
+```
+    
+Model 2 is y -4.80 + 0.045*GRIP    
+Adjusted R-squared is .405    
+Both coefficients are significantly different from 0
+
+## graphical desciption of SIMS~GRIP
+
+```{r}
+plot(SIMS~GRIP,data=simData)
+abline(m2)
+```
+    
+The scatterplot shows a positive linear relation between SIMS and GRIP
+    
+## Prediction for GRIP=90
+```{r}
+predict(m2, newdata, interval='prediction')
+```
+    
+
+    
+# Model 3 SIMS depends on ARM+GRIP
+```{r}
+m3 = lm(SIMS~ARM+GRIP,data=simData)
+```
+
+## Numerical Summary model 3
+```{r}
+summary.lm(m3)
+```
+    
+Model 3 is y -5.43 + 0.04 * ARM + 0.02 * GRIP
+Adjusted R-squared is .535    
+Both coefficients are significantly different from 0
+
+## graphical desciption of SIMS~ARM+GRIP
+
+```{r}
+plot(SIMS~ARM+GRIP,data=simData)
+abline(m3)
+```
+    
+The scatterplot shows a positive linear relation between SIMS and ARM+GRIP
+    
+## Prediction for ARM=90 and GRIP=90
+```{r}
+predict(m3, newdata, interval='prediction')
+```
+    
+# Comparison using Anova between Model 1 and Model 3
+    
+```{r}
+anova(m1,m3)
+```
+    
+The Anova shows that model 3 is much better than model 1. P-value is equal to 0.000004994 which is smaller than .05 so we have evidence their is a difference in the models. Because model 3 has a smaller RSS, it is the better model.
+    
+# Discussion and Conclusion
+    
+Using three possible linear models for SIMS, SIMS~ARM(model 1), SIMS~GRIP(model 2), and SIMS~ARM+GRIP(model 3).
+    
+The anova shoes that model 3 was better than 1.
+
+    
